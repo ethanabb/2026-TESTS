@@ -60,7 +60,10 @@ public class RobotContainer {
           () -> MathUtil.applyDeadband(m_Vision.limelight_aim_proportional(), .15)
           )
     );
-        
+      // make sure all subsystems have a default command to fall back upon when not being called
+    m_shooter.setDefaultCommand(
+      m_shooter.stopAll()
+    );
     
     // Configure the trigger bindings
     configureBindings();
@@ -86,10 +89,10 @@ public class RobotContainer {
     );
 
     m_driverController.rightTrigger().whileTrue(
-      m_shooter.enableShooterIntake(m_driverController)).whileFalse(m_shooter.stopShooterIntake());
+      m_shooter.runShooterIntake(m_driverController)).whileFalse(m_shooter.stopShooterIntake());
 
     m_driverController.leftTrigger().whileTrue(
-      m_shooter.enableMainShooter(m_driverController)).whileFalse(m_shooter.stopMainShooter());
+      m_shooter.runShooter(m_driverController)).whileFalse(m_shooter.stopShooter());
 
   }
     

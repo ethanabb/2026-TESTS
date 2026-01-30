@@ -4,48 +4,49 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  
 
 
-public class Shooter {
+public class Shooter extends SubsystemBase{
 
-        TalonFX shooter_intake = new TalonFX(22);
-
-        TalonFX main_shooter = new TalonFX(23);
-        
-        double setSpeed = 0.25;
-        double intakeSpeed = setSpeed;
-        double shooterSpeed;
+    private final TalonFX intakeMotor = new TalonFX(22);
+    private final TalonFX shooterMotor = new TalonFX(23);
 
 
-    public Command enableShooterIntake(CommandXboxController controllerValue){
-        return new RunCommand(() -> {
+    public Command runShooterIntake(CommandXboxController controllerValue){
+        return new RunCommand(() -> 
+            intakeMotor.set(controllerValue.getRightTriggerAxis())
+            // ,this
+    );}
 
-        shooter_intake.set(controllerValue.getRightTriggerAxis());
-        // m_follower.set(followerSpeed);
-
-    });}
-
-    public Command enableMainShooter(CommandXboxController controllerValue){
-        return new RunCommand(()-> {
-
-        main_shooter.set(controllerValue.getLeftTriggerAxis());
-        
-    });}
-
+    public Command runShooter(CommandXboxController controllerValue){
+        return new RunCommand(()-> 
+            shooterMotor.set(controllerValue.getLeftTriggerAxis())
+            // ,this
+    );}
 
     public Command stopShooterIntake(){
-        return new InstantCommand(()->{
-            shooter_intake.set(0);
-            // m_follower.set(0);
-        });
+        return new InstantCommand(()->
+            intakeMotor.set(0)
+            // ,this
+        );
+    }
+    public Command stopShooter(){
+        return new InstantCommand(()->
+            shooterMotor.set(0)
+            // ,this
+        );
     }
 
-    public Command stopMainShooter(){
-        return new InstantCommand(()->{
-            main_shooter.set(0);
-
-        });
+    public Command stopAll(){
+        return new RunCommand(()->{
+                shooterMotor.set(0);
+                intakeMotor.set(0);
+            },
+            // ", this" makes sure that only the shooter subsystem object can only run command at a time
+            this
+        );
     }
 }
