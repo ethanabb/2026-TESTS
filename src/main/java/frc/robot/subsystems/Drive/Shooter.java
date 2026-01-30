@@ -30,8 +30,9 @@ public class Shooter {
     public Command enableMainShooter(CommandXboxController controllerValue){
         return new RunCommand(()-> {
 
+        // main_shooter.set(controllerValue.getLeftTriggerAxis());
         main_shooter.set(controllerValue.getLeftTriggerAxis());
-        
+
     });}
 
 
