@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Drive.Shooter;
+import frc.robot.subsystems.Drive.Intake;
 
 
 /**
@@ -34,6 +35,7 @@ public class RobotContainer {
       private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem();
       private final Vision m_Vision = new Vision(); 
       private final Shooter m_shooter = new Shooter();
+      // private final Intake m_intake = new Intake();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   static final CommandXboxController m_driverController =
@@ -60,8 +62,15 @@ public class RobotContainer {
           () -> MathUtil.applyDeadband(m_Vision.limelight_aim_proportional(), .15)
           )
     );
-        
+      // make sure all subsystems have a default command to fall back upon when not being called
+    m_shooter.setDefaultCommand(
+      m_shooter.stopAll()
+    );
     
+    // m_intake.setDefaultCommand(
+    //   m_intake.stopAll()
+    // );
+
     // Configure the trigger bindings
     configureBindings();
   }
@@ -86,11 +95,12 @@ public class RobotContainer {
     );
 
     m_driverController.rightTrigger().whileTrue(
-      m_shooter.enableShooterIntake(m_driverController)).whileFalse(m_shooter.stopShooterIntake());
+      m_shooter.runShooterIntake(m_driverController)).whileFalse(m_shooter.stopShooterIntake());
 
     m_driverController.leftTrigger().whileTrue(
-      m_shooter.enableMainShooter(m_driverController)).whileFalse(m_shooter.stopMainShooter());
+      m_shooter.runShooter(m_driverController)).whileFalse(m_shooter.stopShooter());
 
+    // m_driverController.b().whileTrue(
   }
     
 
