@@ -1,6 +1,6 @@
 package frc.robot.subsystems.Drive;
 
-public class Index extends SubsystemBase{
+public class Index {
     // 3, 2x belt index
     // up/down movement on belt arms?
     // or (manually) adjustable belts, thats only runs?

@@ -35,7 +35,7 @@ public class RobotContainer {
       private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem();
       private final Vision m_Vision = new Vision(); 
       private final Shooter m_shooter = new Shooter();
-      // private final Intake m_intake = new Intake();
+      private final Intake m_intake = new Intake();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   static final CommandXboxController m_driverController =
@@ -67,9 +67,9 @@ public class RobotContainer {
       m_shooter.stopAll()
     );
     
-    // m_intake.setDefaultCommand(
-    //   m_intake.stopAll()
-    // );
+    m_intake.setDefaultCommand(
+      m_intake.stopAll()
+    );
 
     // Configure the trigger bindings
     configureBindings();
@@ -99,8 +99,18 @@ public class RobotContainer {
 
     m_driverController.leftTrigger().whileTrue(
       m_shooter.runShooter(m_driverController)).whileFalse(m_shooter.stopShooter());
+      //   m_driverController.leftTrigger().whileTrue(
+      // m_shooter.runShooterBangBang(50)).whileFalse(m_shooter.stopShooter());
 
-    // m_driverController.b().whileTrue(
+
+    // B Button: Run Intake, press again to fall back on default commmand (stop intake)
+    m_driverController.b().toggleOnTrue(m_intake.runIntake());
+    
+    m_driverController.rightBumper().whileTrue(m_intake.raiseIntake());
+    m_driverController.leftBumper().whileTrue(m_intake.lowerIntake());
+
+
+
   }
     
 

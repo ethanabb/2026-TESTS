@@ -17,6 +17,7 @@ import com.revrobotics.spark.SparkClosedLoopController; // For advanced control 
 import com.revrobotics.spark.SparkRelativeEncoder; // For accessing the built-in encoder (optional)
 import edu.wpi.first.wpilibj.DigitalInput;
 
+
 import java.util.Set;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -27,32 +28,22 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 
 public class Intake extends SubsystemBase{
     
-    private final TalonFX leaderIntake = new TalonFX(24);
-    private final TalonFX followerIntake = new TalonFX(25);
+    // private final TalonFX leaderIntake = new TalonFX(24);
+    // private final TalonFX followerIntake = new TalonFX(25);
 
-    private final SparkFlex pivotArm = new SparkFlex(28, MotorType.kBrushless);
+    private final SparkMax leaderIntake = new SparkMax(24, MotorType.kBrushless);
+    private final SparkMax followerIntake = new SparkMax(25, MotorType.kBrushless);
 
-    private final DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(4);
-    private final DigitalInput pivotLimitSwitch = new DigitalInput(5);
+    private final SparkMax pivotArm = new SparkMax(28, MotorType.kBrushless);
+
+    // private final SparkFlex pivotArm = new SparkFlex(28, MotorType.kBrushless);
+
+    private final DigitalInput lowerLimitSwitch = new DigitalInput(1);
+    private final DigitalInput upperLimitSwitch = new DigitalInput(2);
 
     private double setSpeed = 0.5;
-    
-    // gets encoder angle in degress and sets soft limits
-    private double pivotCurAngle = pivotEncoder.get() * 360;
-    private final double pivotMinAngle = 0.0;
-    private final double pivotMaxAngle = 90.0;
 
-    public Intake(){
-    // prevents intake jerk
-    TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
-    intakeConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.25;
 
-    // SparkFlexConfig pivotConfig = new SparkFlexConfig();
-
-    leaderIntake.getConfigurator().apply(intakeConfig);
-    followerIntake.getConfigurator().apply(intakeConfig);
-
-    }
     
     public Command runIntake(){
         return new RunCommand(() -> {
@@ -63,39 +54,14 @@ public class Intake extends SubsystemBase{
         );
     }
 
-    // public boolean safeZone(){
-    //     double pivotCurAngle = pivotEncoder.get() * 360;
-    //     if (pivotCurAngle >= pivotMinAngle && pivotCurAngle <= pivotMaxAngle){
-    //         return true; 
-    //     } else { 
-    //         return false; 
-    //     }
-    // }
-
-    public boolean canRaise(){
-        double pivotCurAngle = pivotEncoder.get() * 360;
-        if (pivotCurAngle < pivotMaxAngle){
-            return true; 
-        } else { 
-            return false; 
-        }
-    }
-
-    public boolean canLower(){
-        double pivotCurAngle = pivotEncoder.get() * 360;
-        if (pivotCurAngle > pivotMinAngle){
-            return true; 
-        } else { 
-            return false; 
-        }
-    }
-
     public Command lowerIntake(){
         return new RunCommand(() -> {
-            if (!pivotLimitSwitch.get() && canLower()){
-                pivotArm.set(0.01);  // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
+            if (lowerLimitSwitch.get()){
+                pivotArm.set(0.0);  // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
+                System.out.println("Switch = false");
             } else {
-                pivotArm.set(0);
+                pivotArm.set(0.1);
+                System.out.println("Switch = true");
             }
         }
         // ensures when this command runs, it has sole control of the intake subsystem
@@ -105,8 +71,8 @@ public class Intake extends SubsystemBase{
     
     public Command raiseIntake(){
         return new RunCommand(() -> {
-            if (canRaise()){
-                pivotArm.set(-0.01); // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
+            if (!(upperLimitSwitch.get())){
+                pivotArm.set(-0.1); // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
             } else {
                 pivotArm.set(0);
             }
