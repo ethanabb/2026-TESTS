@@ -42,8 +42,9 @@ public class Intake extends SubsystemBase{
     private final DigitalInput lowerLimitSwitch = new DigitalInput(1);
     private final DigitalInput upperLimitSwitch = new DigitalInput(2);
 
-
-    private double setSpeed = 0.5;
+    private final double stopSpeed = 0.0;
+    private final double setSpeed = 0.1;
+    private final double pivotSpeed = 0.1;
 
 
     
@@ -56,36 +57,75 @@ public class Intake extends SubsystemBase{
         );
     }
 
+    // Press and hold verision
     public Command lowerIntake(){
         return new RunCommand(() -> {
             if (lowerLimitSwitch.get()){
-                pivotArm.set(0.0);  // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
+                pivotArm.set(stopSpeed);  // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
             } else {
-                pivotArm.set(0.1);
+                pivotArm.set(pivotSpeed);
             }
         }
         // ensures when this command runs, it has sole control of the intake subsystem
         , this
         );
     }
-    
+     // Press and hold verision
     public Command raiseIntake(){
         return new RunCommand(() -> {
             if (upperLimitSwitch.get()){ 
-                pivotArm.set(0); // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
+                pivotArm.set(stopSpeed); // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
             } else {
-                pivotArm.set(-0.1);
+                pivotArm.set(-pivotSpeed);
             }
         }
         , this
         );
     }
+// // test code for auto deploy
+//     private boolean intakeDeployed = true;
+
+//     public Command toggleIntake(){
+//         return new InstantCommand(()->{
+//             if(intakeDeployed){
+//                 raiseIntakeAuto().schedule();
+//             } else {
+//                 lowerIntakeAuto().schedule();
+//             }
+//             intakeDeployed = !intakeDeployed;
+//         }
+//         , this );
+//     }
+    
+//     public Command lowerIntakeAuto(){
+//         return new RunCommand(()->{
+//             pivotArm.set(pivotSpeed);
+//         }
+//         , this)
+//         .until(()-> lowerLimitSwitch.get())
+//         .unless(()-> lowerLimitSwitch.get())
+//         .finallyDo(interrupted -> {
+//             pivotArm.set(stopSpeed);
+//         });
+//     }
+//     public Command raiseIntakeAuto(){
+//         return new RunCommand(()->{
+//             pivotArm.set(-pivotSpeed);
+//         }
+//         , this)
+//         .until(()-> upperLimitSwitch.get())
+//         .unless(()-> upperLimitSwitch.get())
+//         .finallyDo(interrupted -> {
+//             pivotArm.set(stopSpeed);
+//         });
+//     }
+
 
     public Command stopAll(){
         return new RunCommand(()->{
-            leaderIntake.set(0);
-            followerIntake.set(0);
-            pivotArm.set(0);
+            leaderIntake.set(stopSpeed);
+            followerIntake.set(stopSpeed);
+            pivotArm.set(stopSpeed);
         },
         this
         );
