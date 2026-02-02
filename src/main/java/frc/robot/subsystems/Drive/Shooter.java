@@ -21,7 +21,7 @@ public class Shooter extends SubsystemBase{
     // Bang-bang control parameters
     private double shooterTargetVelocity = 0; // Target velocity in rotations per second
     private final double BANG_BANG_ON_POWER = 1.0; // Full power when below setpoint
-    private final double BANG_BANG_OFF_POWER = 0.01; // Power when at/above setpoint
+    private final double BANG_BANG_OFF_POWER = 0.00; // Power when at/above setpoint
 
     public Shooter() {
         // Configure shooter motors to coast mode for better bang-bang control

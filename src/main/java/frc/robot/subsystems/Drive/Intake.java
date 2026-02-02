@@ -38,8 +38,10 @@ public class Intake extends SubsystemBase{
 
     // private final SparkFlex pivotArm = new SparkFlex(28, MotorType.kBrushless);
 
+    // when requesting a digital input, the boolean value will always be true if it is unplugged. 
     private final DigitalInput lowerLimitSwitch = new DigitalInput(1);
     private final DigitalInput upperLimitSwitch = new DigitalInput(2);
+
 
     private double setSpeed = 0.5;
 
@@ -58,10 +60,8 @@ public class Intake extends SubsystemBase{
         return new RunCommand(() -> {
             if (lowerLimitSwitch.get()){
                 pivotArm.set(0.0);  // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
-                System.out.println("Switch = false");
             } else {
                 pivotArm.set(0.1);
-                System.out.println("Switch = true");
             }
         }
         // ensures when this command runs, it has sole control of the intake subsystem
@@ -71,10 +71,10 @@ public class Intake extends SubsystemBase{
     
     public Command raiseIntake(){
         return new RunCommand(() -> {
-            if (!(upperLimitSwitch.get())){
-                pivotArm.set(-0.1); // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
+            if (upperLimitSwitch.get()){ 
+                pivotArm.set(0); // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
             } else {
-                pivotArm.set(0);
+                pivotArm.set(-0.1);
             }
         }
         , this
@@ -94,5 +94,7 @@ public class Intake extends SubsystemBase{
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
+        SmartDashboard.putBoolean("lower limit", lowerLimitSwitch.get());
+        SmartDashboard.putBoolean("upper limit", upperLimitSwitch.get());
     }
 }
