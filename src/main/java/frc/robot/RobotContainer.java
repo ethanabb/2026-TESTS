@@ -87,20 +87,20 @@ public class RobotContainer {
   private void configureBindings() {
 
     // X Button: Drive to a specific absolute field coordinate (Example: 5.0m X, 1.5m Y, facing 0 degrees)
-    m_driverController.x().onTrue(
-        DriveToPointCommand.getCommand(
-            new Pose2d(15.0, .65, Rotation2d.fromDegrees(0)), 
-            m_swerveSubsystem
-        ).andThen(m_swerveSubsystem::stop)
-    );
+    // m_driverController.x().onTrue(
+    //     DriveToPointCommand.getCommand(
+    //         new Pose2d(15.0, .65, Rotation2d.fromDegrees(0)), 
+    //         m_swerveSubsystem
+    //     ).andThen(m_swerveSubsystem::stop)
+    // );
 
     m_driverController.rightTrigger().whileTrue(
       m_shooter.runShooterIntake(m_driverController)).whileFalse(m_shooter.stopShooterIntake());
 
     m_driverController.leftTrigger().whileTrue(
       m_shooter.runShooter(m_driverController)).whileFalse(m_shooter.stopShooter());
-      //   m_driverController.leftTrigger().whileTrue(
-      // m_shooter.runShooterBangBang(50)).whileFalse(m_shooter.stopShooter());
+    // m_driverController.x().whileTrue(
+    //    m_shooter.runShooterBangBang(50)).whileFalse(m_shooter.stopShooter());
 
 
     // B Button: Run Intake, press again to fall back on default commmand (stop intake)

@@ -84,41 +84,43 @@ public class Intake extends SubsystemBase{
     }
 // // test code for auto deploy
 //     private boolean intakeDeployed = true;
-
-//     public Command toggleIntake(){
-//         return new InstantCommand(()->{
-//             if(intakeDeployed){
-//                 raiseIntakeAuto().schedule();
-//             } else {
-//                 lowerIntakeAuto().schedule();
-//             }
-//             intakeDeployed = !intakeDeployed;
-//         }
-//         , this );
-//     }
+private boolean intakeDeployed = true; 
+    public Command toggleIntake(){
+        return new InstantCommand(()->{
+            if(intakeDeployed){
+                raiseIntakeAuto();
+                // .schedule();
+            } else {
+                lowerIntakeAuto();
+                // .schedule();
+            }
+            intakeDeployed = !intakeDeployed;
+        }
+        , this );
+    }
     
-//     public Command lowerIntakeAuto(){
-//         return new RunCommand(()->{
-//             pivotArm.set(pivotSpeed);
-//         }
-//         , this)
-//         .until(()-> lowerLimitSwitch.get())
-//         .unless(()-> lowerLimitSwitch.get())
-//         .finallyDo(interrupted -> {
-//             pivotArm.set(stopSpeed);
-//         });
-//     }
-//     public Command raiseIntakeAuto(){
-//         return new RunCommand(()->{
-//             pivotArm.set(-pivotSpeed);
-//         }
-//         , this)
-//         .until(()-> upperLimitSwitch.get())
-//         .unless(()-> upperLimitSwitch.get())
-//         .finallyDo(interrupted -> {
-//             pivotArm.set(stopSpeed);
-//         });
-//     }
+    public Command lowerIntakeAuto(){
+        return new RunCommand(()->{
+            pivotArm.set(pivotSpeed);
+        }
+        , this)
+        .until(()-> !lowerLimitSwitch.get())
+        .unless(()-> !lowerLimitSwitch.get())
+        .finallyDo(interrupted -> {
+            pivotArm.set(stopSpeed);
+        });
+    }
+    public Command raiseIntakeAuto(){
+        return new RunCommand(()->{
+            pivotArm.set(-pivotSpeed);
+        }
+        , this)
+        .until(()-> !upperLimitSwitch.get())
+        .unless(()-> !upperLimitSwitch.get())
+        .finallyDo(interrupted -> {
+            pivotArm.set(stopSpeed);
+        });
+    }
 
 
     public Command stopAll(){
