@@ -31,16 +31,17 @@ public class Intake extends SubsystemBase{
     
     // private final TalonFX leaderIntake = new TalonFX(24);
     // private final TalonFX followerIntake = new TalonFX(25);
+    private final SparkFlex leaderIntake = new SparkFlex(24, MotorType.kBrushless);
 
-    private final SparkMax leaderIntake = new SparkMax(24, MotorType.kBrushless);
-    private final SparkMax followerIntake = new SparkMax(25, MotorType.kBrushless);
+    // private final SparkMax leaderIntake = new SparkMax(24, MotorType.kBrushless);
+    // private final SparkMax followerIntake = new SparkMax(25, MotorType.kBrushless);
 
     private final SparkMax pivotArm = new SparkMax(28, MotorType.kBrushless);
 
     // private final SparkFlex pivotArm = new SparkFlex(28, MotorType.kBrushless);
 
     // when requesting a digital input, the boolean value will always be true if it is unplugged. 
-    private final DigitalInput lowerLimitSwitch = new DigitalInput(1);
+    private final DigitalInput lowerLimitSwitch = new DigitalInput(3);
     private final DigitalInput upperLimitSwitch = new DigitalInput(2);
 
     private final double stopSpeed = 0.0;
@@ -52,7 +53,7 @@ public class Intake extends SubsystemBase{
     public Command runIntake(){
         return new RunCommand(() -> {
             leaderIntake.set(setSpeed);
-            followerIntake.set(-setSpeed);
+            // followerIntake.set(-setSpeed);
         }
         // , this 
         );
@@ -61,10 +62,12 @@ public class Intake extends SubsystemBase{
     // Press and hold verision
     public Command lowerIntake(){
         return new RunCommand(() -> {
-            if (lowerLimitSwitch.get()){
+            if (!lowerLimitSwitch.get()){
+                System.out.println("Lower limit switch triggered");
                 pivotArm.set(stopSpeed);  // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
             } else {
                 pivotArm.set(pivotSpeed);
+                System.out.println("Lowering intake");
             }
         }
         // ensures when this command runs, it has sole control of the intake subsystem
@@ -74,10 +77,12 @@ public class Intake extends SubsystemBase{
      // Press and hold verision
     public Command raiseIntake(){
         return new RunCommand(() -> {
-            if (upperLimitSwitch.get()){ 
+            if (!upperLimitSwitch.get()){ 
                 pivotArm.set(stopSpeed); // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
+                System.out.println("Upper limit switch triggered");
             } else {
                 pivotArm.set(-pivotSpeed);
+                System.out.println("Raising intake");
             }
         }
         , this
@@ -142,8 +147,8 @@ private boolean intakeDeployed = true;
 
     public Command stopAll(){
         return new RunCommand(()->{
-            leaderIntake.set(stopSpeed);
-            followerIntake.set(stopSpeed);
+            // leaderIntake.set(stopSpeed);
+            // followerIntake.set(stopSpeed);
             pivotArm.set(stopSpeed);
         },
         this

@@ -96,6 +96,9 @@ public class RobotContainer {
 
     m_driverController.rightTrigger().whileTrue(
       m_shooter.runShooterIntake(m_driverController)).whileFalse(m_shooter.stopShooterIntake());
+    m_driverController.a().whileTrue(
+      m_shooter.runReverseShooterIntake(m_driverController)).whileFalse(m_shooter.stopShooterIntake());
+
 
     m_driverController.leftTrigger().whileTrue(
       m_shooter.runShooter(m_driverController)).whileFalse(m_shooter.stopShooter());
@@ -104,13 +107,13 @@ public class RobotContainer {
 
 
     // B Button: Run Intake, press again to fall back on default commmand (stop intake)
-    m_driverController.b().toggleOnTrue(m_intake.runIntake());
+    // m_driverController.b().toggleOnTrue(m_intake.runIntake());
     
     m_driverController.rightBumper().whileTrue(m_intake.raiseIntake());
     m_driverController.leftBumper().whileTrue(m_intake.lowerIntake());
 
-    // m_driverController.y().onTrue(m_intake.toggleIntake());
-
+    m_driverController.y().onTrue(m_intake.toggleIntake());
+    m_driverController.x().whileTrue(m_intake.runIntake());
   }
     
 

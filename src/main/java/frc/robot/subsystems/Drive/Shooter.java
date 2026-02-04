@@ -3,6 +3,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -13,37 +14,37 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class Shooter extends SubsystemBase{
 
-    private final TalonFX intakeMotor = new TalonFX(20);
-    private final TalonFX shooterMotor = new TalonFX(21);
-    // private final TalonFX MotorFollower = new TalonFX(24);
-    // private final TalonFX MotorFollower2 = new TalonFX(25);
+    private final TalonFX intakeMotor = new TalonFX(21);
+    private final TalonFX shooterMotor = new TalonFX(23);
+    private final TalonFX MotorFollower = new TalonFX(24);
+    private final TalonFX MotorFollower2 = new TalonFX(25);
 
     // Bang-bang control parameters
     private double shooterTargetVelocity = 0; // Target velocity in rotations per second
     private final double BANG_BANG_ON_POWER = 1.0; // Full power when below setpoint
     private final double BANG_BANG_OFF_POWER = 0.00; // Power when at/above setpoint
 
-    public Shooter() {
-        // Configure shooter motors to coast mode for better bang-bang control
-        shooterMotor.setNeutralMode(NeutralModeValue.Coast);
-        // MotorFollower.setNeutralMode(NeutralModeValue.Coast);
-        // MotorFollower2.setNeutralMode(NeutralModeValue.Coast);
+    // public Shooter() {
+    //     // Configure shooter motors to coast mode for better bang-bang control
+    //     shooterMotor.setNeutralMode(NeutralModeValue.Coast);
+    //     MotorFollower.setNeutralMode(NeutralModeValue.Coast);
+    //     MotorFollower2.setNeutralMode(NeutralModeValue.Coast);
 
-        // Intake can stay in brake mode for better control
-        intakeMotor.setNeutralMode(NeutralModeValue.Brake);
+    //     // Intake can stay in brake mode for better control
+    //     intakeMotor.setNeutralMode(NeutralModeValue.Brake);
 
-        // Configure current limiting to protect motors
-        CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(40)           // Supply current limit (amps)
-            .withSupplyCurrentLimitEnable(true)   // Enable supply current limiting
-            .withStatorCurrentLimit(60)           // Stator current limit (amps)
-            .withStatorCurrentLimitEnable(true);  // Enable stator current limiting
+    //     // Configure current limiting to protect motors
+    //     CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
+    //         .withSupplyCurrentLimit(40)           // Supply current limit (amps)
+    //         .withSupplyCurrentLimitEnable(true)   // Enable supply current limiting
+    //         .withStatorCurrentLimit(60)           // Stator current limit (amps)
+    //         .withStatorCurrentLimitEnable(true);  // Enable stator current limiting
 
-        shooterMotor.getConfigurator().apply(currentLimits);
-        // MotorFollower.getConfigurator().apply(currentLimits);
-        // MotorFollower2.getConfigurator().apply(currentLimits);
-        intakeMotor.getConfigurator().apply(currentLimits);
-    }
+    //     shooterMotor.getConfigurator().apply(currentLimits);
+    //     MotorFollower.getConfigurator().apply(currentLimits);
+    //     MotorFollower2.getConfigurator().apply(currentLimits);
+    //     intakeMotor.getConfigurator().apply(currentLimits);
+    // }
 
     public Command runShooterIntake(CommandXboxController controllerValue){
         return new RunCommand(() -> 
@@ -51,12 +52,19 @@ public class Shooter extends SubsystemBase{
             // ,this
     );}
 
+    
+    public Command runReverseShooterIntake(CommandXboxController controllerValue){
+        return new RunCommand(() -> 
+            intakeMotor.set(-1)
+            // ,this
+    );}
+
     public Command runShooter(CommandXboxController controllerValue){
         return new RunCommand(()-> {
             double speed = controllerValue.getLeftTriggerAxis();
             shooterMotor.set(-speed);
-            // MotorFollower.set(speed);
-            // MotorFollower2.set(speed);
+            MotorFollower.set(speed);
+            MotorFollower2.set(-speed);
         }
         // ,this
         );
@@ -69,19 +77,20 @@ public class Shooter extends SubsystemBase{
         );
     }
     public Command stopShooter(){
-        return new InstantCommand(()->
-            shooterMotor.set(0)
-            // MotorFollower.set(0);
-            // MotorFollower2.set(0);
-            // ,this
+        return new InstantCommand(()->{
+            shooterMotor.set(0);
+            MotorFollower.set(0);
+            MotorFollower2.set(0);
+        }
+        ,this
         );
     }
 
     public Command stopAll(){
         return new RunCommand(()->{
                 shooterMotor.set(0);
-                // MotorFollower.set(0);
-                // MotorFollower2.set(0);
+                MotorFollower.set(0);
+                MotorFollower2.set(0);
                 intakeMotor.set(0);
 
             },
@@ -117,12 +126,12 @@ public class Shooter extends SubsystemBase{
 
         if (currentVelocity < shooterTargetVelocity) {
             shooterMotor.set(BANG_BANG_ON_POWER);
-            // MotorFollower.set(BANG_BANG_ON_POWER);
-            // MotorFollower2.set(BANG_BANG_ON_POWER);
+            MotorFollower.set(BANG_BANG_ON_POWER);
+            MotorFollower2.set(BANG_BANG_ON_POWER);
         } else {
             shooterMotor.set(BANG_BANG_OFF_POWER);
-            // MotorFollower.set(BANG_BANG_OFF_POWER);
-            // MotorFollower2.set(BANG_BANG_OFF_POWER);
+            MotorFollower.set(BANG_BANG_OFF_POWER);
+            MotorFollower2.set(BANG_BANG_OFF_POWER);
         }
     }
 
@@ -145,5 +154,27 @@ public class Shooter extends SubsystemBase{
      */
     public boolean isAtTargetVelocity(double tolerance) {
         return Math.abs(getShooterVelocity() - shooterTargetVelocity) <= tolerance;
+    }
+
+    @Override
+    public void periodic(){
+        SmartDashboard.putNumber("Shooter 23" , shooterMotor.get());
+        SmartDashboard.putNumber("Shooter 23", shooterMotor.getMotorOutputStatus().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 23", shooterMotor.getMotorVoltage().getValueAsDouble());
+
+
+        SmartDashboard.putNumber("Shooter 24" , MotorFollower.get());
+        SmartDashboard.putNumber("Shooter 24", MotorFollower.getMotorOutputStatus().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 24", MotorFollower.getMotorVoltage().getValueAsDouble());
+
+        SmartDashboard.putNumber("Shooter 25" , MotorFollower2.get());
+        SmartDashboard.putNumber("Shooter 25", MotorFollower2.getMotorOutputStatus().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 25", MotorFollower2.getMotorVoltage().getValueAsDouble());
+
+
+        SmartDashboard.putNumber("Shooter 21" , intakeMotor.get());
+        SmartDashboard.putNumber("Shooter 21", intakeMotor.getMotorOutputStatus().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 21", intakeMotor.getMotorVoltage().getValueAsDouble());
+
     }
 }
