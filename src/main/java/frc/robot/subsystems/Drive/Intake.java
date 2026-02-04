@@ -4,6 +4,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -85,18 +86,27 @@ public class Intake extends SubsystemBase{
 // // test code for auto deploy
 //     private boolean intakeDeployed = true;
 private boolean intakeDeployed = true; 
+    // public Command toggleIntake(){
+    //     return new InstantCommand(()->{
+    //         if(intakeDeployed){
+    //             raiseIntakeAuto()
+    //             .schedule();
+    //         } else {
+    //             lowerIntakeAuto()
+    //             .schedule();
+    //         }
+    //         intakeDeployed = !intakeDeployed;
+    //     }
+    //     // , this 
+    //     );
+    // }
+
     public Command toggleIntake(){
-        return new InstantCommand(()->{
-            if(intakeDeployed){
-                raiseIntakeAuto();
-                // .schedule();
-            } else {
-                lowerIntakeAuto();
-                // .schedule();
-            }
-            intakeDeployed = !intakeDeployed;
-        }
-        , this );
+        return new ConditionalCommand(
+            raiseIntakeAuto(), // runs when intakeDeployed = true
+            lowerIntakeAuto(), // runs when intakeDeployed = false
+            () -> intakeDeployed // the condition used to determine what command to run
+        );
     }
     
     public Command lowerIntakeAuto(){
@@ -104,12 +114,16 @@ private boolean intakeDeployed = true;
             pivotArm.set(pivotSpeed);
         }
         , this)
-        .until(()-> !lowerLimitSwitch.get())
-        .unless(()-> !lowerLimitSwitch.get())
-        .finallyDo(interrupted -> {
-            pivotArm.set(stopSpeed);
+        .until(()-> !lowerLimitSwitch.get()) // runs until limit switch is triggered
+        .unless(()-> !lowerLimitSwitch.get()) // prevents running if limit switch is already triggered
+        .finallyDo(interrupted -> { 
+            pivotArm.set(stopSpeed); 
+            if (!interrupted) {
+                intakeDeployed = true;
+            }
         });
     }
+
     public Command raiseIntakeAuto(){
         return new RunCommand(()->{
             pivotArm.set(-pivotSpeed);
@@ -119,6 +133,9 @@ private boolean intakeDeployed = true;
         .unless(()-> !upperLimitSwitch.get())
         .finallyDo(interrupted -> {
             pivotArm.set(stopSpeed);
+            if (!interrupted) {
+                intakeDeployed = false;
+            }
         });
     }
 
