@@ -125,9 +125,9 @@ public class Shooter extends SubsystemBase{
         double currentVelocity = getShooterVelocity();
 
         if (currentVelocity < shooterTargetVelocity) {
-            shooterMotor.set(BANG_BANG_ON_POWER);
+            shooterMotor.set(-BANG_BANG_ON_POWER);
             MotorFollower.set(BANG_BANG_ON_POWER);
-            MotorFollower2.set(BANG_BANG_ON_POWER);
+            MotorFollower2.set(-BANG_BANG_ON_POWER);
         } else {
             shooterMotor.set(BANG_BANG_OFF_POWER);
             MotorFollower.set(BANG_BANG_OFF_POWER);
@@ -159,22 +159,20 @@ public class Shooter extends SubsystemBase{
     @Override
     public void periodic(){
         SmartDashboard.putNumber("Shooter 23" , shooterMotor.get());
-        SmartDashboard.putNumber("Shooter 23", shooterMotor.getMotorOutputStatus().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 23", shooterMotor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 23 motor output", shooterMotor.getMotorOutputStatus().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 23 voltage", shooterMotor.getMotorVoltage().getValueAsDouble());
 
 
         SmartDashboard.putNumber("Shooter 24" , MotorFollower.get());
-        SmartDashboard.putNumber("Shooter 24", MotorFollower.getMotorOutputStatus().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 24", MotorFollower.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 24 motor output", MotorFollower.getMotorOutputStatus().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 24 voltage", MotorFollower.getMotorVoltage().getValueAsDouble());
 
         SmartDashboard.putNumber("Shooter 25" , MotorFollower2.get());
-        SmartDashboard.putNumber("Shooter 25", MotorFollower2.getMotorOutputStatus().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 25", MotorFollower2.getMotorVoltage().getValueAsDouble());
-
+        SmartDashboard.putNumber("Shooter 25 motor output", MotorFollower2.getMotorOutputStatus().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 25 voltage", MotorFollower2.getMotorVoltage().getValueAsDouble());
 
         SmartDashboard.putNumber("Shooter 21" , intakeMotor.get());
-        SmartDashboard.putNumber("Shooter 21", intakeMotor.getMotorOutputStatus().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 21", intakeMotor.getMotorVoltage().getValueAsDouble());
-
+        SmartDashboard.putNumber("Shooter 21 motor output", intakeMotor.getMotorOutputStatus().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 21 voltage", intakeMotor.getMotorVoltage().getValueAsDouble());
     }
 }

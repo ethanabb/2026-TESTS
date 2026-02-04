@@ -63,11 +63,11 @@ public class Intake extends SubsystemBase{
     public Command lowerIntake(){
         return new RunCommand(() -> {
             if (!lowerLimitSwitch.get()){
-                System.out.println("Lower limit switch triggered");
+                // System.out.println("Lower limit switch triggered");
                 pivotArm.set(stopSpeed);  // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
             } else {
                 pivotArm.set(pivotSpeed);
-                System.out.println("Lowering intake");
+                // System.out.println("Lowering intake");
             }
         }
         // ensures when this command runs, it has sole control of the intake subsystem
@@ -79,10 +79,10 @@ public class Intake extends SubsystemBase{
         return new RunCommand(() -> {
             if (!upperLimitSwitch.get()){ 
                 pivotArm.set(stopSpeed); // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
-                System.out.println("Upper limit switch triggered");
+                // System.out.println("Upper limit switch triggered");
             } else {
                 pivotArm.set(-pivotSpeed);
-                System.out.println("Raising intake");
+                // System.out.println("Raising intake");
             }
         }
         , this
