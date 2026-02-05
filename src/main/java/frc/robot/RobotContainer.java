@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Drive.Shooter;
 import frc.robot.subsystems.Drive.Intake;
+import frc.robot.subsystems.Drive.Index;
 
 
 /**
@@ -36,6 +37,7 @@ public class RobotContainer {
       private final Vision m_Vision = new Vision(); 
       private final Shooter m_shooter = new Shooter();
       private final Intake m_intake = new Intake();
+      private final Index m_index = new Index();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   static final CommandXboxController m_driverController =
@@ -71,6 +73,10 @@ public class RobotContainer {
       m_intake.stopAll()
     );
 
+    m_index.setDefaultCommand(
+      m_index.stopAll()
+    );
+
     // Configure the trigger bindings
     configureBindings();
   }
@@ -94,10 +100,12 @@ public class RobotContainer {
     //     ).andThen(m_swerveSubsystem::stop)
     // );
 
+  
     m_driverController.rightTrigger().whileTrue(
-      m_shooter.runShooterIntake(m_driverController)).whileFalse(m_shooter.stopShooterIntake());
+      m_index.runIndex(m_driverController)).whileFalse(m_index.stopIndex());
+
     m_driverController.a().whileTrue(
-      m_shooter.runReverseShooterIntake(m_driverController)).whileFalse(m_shooter.stopShooterIntake());
+      m_index.runReverseIndex(m_driverController)).whileFalse(m_index.stopIndex());
 
 
     m_driverController.leftTrigger().whileTrue(
@@ -111,8 +119,8 @@ public class RobotContainer {
     // B Button: Run Intake, press again to fall back on default commmand (stop intake)
     m_driverController.b().toggleOnTrue(m_intake.runIntake());
     
-    m_driverController.rightBumper().whileTrue(m_intake.raiseIntake());
-    m_driverController.leftBumper().whileTrue(m_intake.lowerIntake());
+    m_driverController.rightBumper().whileTrue(m_intake.raiseIntakeManual());
+    m_driverController.leftBumper().whileTrue(m_intake.lowerIntakeManual());
 
     m_driverController.y().onTrue(m_intake.toggleIntake());
     // m_driverController.x().whileTrue(m_intake.runIntake());

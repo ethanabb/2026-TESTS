@@ -21,7 +21,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 
 public class Shooter extends SubsystemBase{
 
-    private final TalonFX intake21 = new TalonFX(21);
     private final TalonFX shooter23 = new TalonFX(23);
     private final TalonFX shooter24 = new TalonFX(24);
     private final TalonFX shooter25 = new TalonFX(25);
@@ -51,8 +50,8 @@ public class Shooter extends SubsystemBase{
     //         .withStatorCurrentLimit(60)           // Stator current limit (amps)
     //         .withStatorCurrentLimitEnable(true);  // Enable stator current limiting
 
+    //     // Current limitors for bang bang testing
     //     shooterMotor.getConfigurator().apply(currentLimits);
-
     //     MotorFollower.getConfigurator().apply(currentLimits);
     //     MotorFollower2.getConfigurator().apply(currentLimits);
     //     intakeMotor.getConfigurator().apply(currentLimits);
@@ -69,20 +68,14 @@ public class Shooter extends SubsystemBase{
         shooter23.getConfigurator().apply(slot0Configs);
         shooter24.getConfigurator().apply(slot0Configs);
         shooter25.getConfigurator().apply(slot0Configs);
-
-
-        // test this once we can get more time with the shooter. 
+        // Setting motor rotation orientation test this once we can get more time with the shooter. 
         // var motorConfig = new TalonFXConfiguration();
         // motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         // shooter23.getConfigurator().apply(motorConfig);
-        
         // motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         // shooter24.getConfigurator().apply(motorConfig);
-
         // motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         // shooter25.getConfigurator().apply(motorConfig);
-
-
     }
 
     public Command runPIDShooter(double targetRPS){
@@ -93,21 +86,6 @@ public class Shooter extends SubsystemBase{
             shooter25.setControl(shooterVoltageRequest.withVelocity(-targetRPS).withFeedForward(0.5));
         }, this 
         );}
-    
-
-
-    public Command runShooterIntake(CommandXboxController controllerValue){
-        return new RunCommand(() -> 
-            intake21.set(controllerValue.getRightTriggerAxis())
-            // ,this
-    );}
-
-    
-    public Command runReverseShooterIntake(CommandXboxController controllerValue){
-        return new RunCommand(() -> 
-            intake21.set(-1)
-            // ,this
-    );}
 
     public Command runShooter(CommandXboxController controllerValue){
         return new RunCommand(()-> {
@@ -120,12 +98,7 @@ public class Shooter extends SubsystemBase{
         );
     };
 
-    public Command stopShooterIntake(){
-        return new InstantCommand(()->
-            intake21.set(0)
-            // ,this
-        );
-    }
+ 
     public Command stopShooter(){
         return new InstantCommand(()->{
             shooter23.set(0);
@@ -141,7 +114,6 @@ public class Shooter extends SubsystemBase{
                 shooter23.set(0);
                 shooter24.set(0);
                 shooter25.set(0);
-                intake21.set(0);
 
             },
             // ", this" makes sure that only the shooter subsystem object can only run command at a time
@@ -233,13 +205,6 @@ public class Shooter extends SubsystemBase{
         SmartDashboard.putNumber("Shooter 25 supply voltage", shooter25.getSupplyVoltage().getValueAsDouble());
         SmartDashboard.putNumber("Shooter target velocity", shooter25.getVelocity().getValueAsDouble());
 
-
-        SmartDashboard.putNumber("Shooter 21" , intake21.get());
-        SmartDashboard.putNumber("Shooter 21 motor output", intake21.getMotorOutputStatus().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 21 voltage", intake21.getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 21 stator current", intake21.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 21 supply voltage", intake21.getSupplyVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter target velocity", intake21.getVelocity().getValueAsDouble());
 
     }
 }

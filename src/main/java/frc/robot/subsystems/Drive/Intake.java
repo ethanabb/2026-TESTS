@@ -47,8 +47,6 @@ public class Intake extends SubsystemBase{
     private final double stopSpeed = 0.0;
     private final double setSpeed = 0.1;
     private final double pivotSpeed = 0.1;
-
-
     
     public Command runIntake(){
         return new RunCommand(() -> {
@@ -60,7 +58,7 @@ public class Intake extends SubsystemBase{
     }
 
     // Press and hold verision
-    public Command lowerIntake(){
+    public Command lowerIntakeManual(){
         return new RunCommand(() -> {
             if (!lowerLimitSwitch.get()){
                 // System.out.println("Lower limit switch triggered");
@@ -75,7 +73,7 @@ public class Intake extends SubsystemBase{
         );
     }
      // Press and hold verision
-    public Command raiseIntake(){
+    public Command raiseIntakeManual(){
         return new RunCommand(() -> {
             if (!upperLimitSwitch.get()){ 
                 pivotArm.set(stopSpeed); // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
