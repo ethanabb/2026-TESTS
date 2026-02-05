@@ -13,21 +13,27 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import com.ctre.phoenix6.configs.CANcoderConfigurator;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
 
 
 
 public class Shooter extends SubsystemBase{
 
-    private final TalonFX intakeMotor = new TalonFX(21);
-    private final TalonFX shooterMotor = new TalonFX(23);
-    private final TalonFX MotorFollower = new TalonFX(24);
-    private final TalonFX MotorFollower2 = new TalonFX(25);
+    private final TalonFX intake21 = new TalonFX(21);
+    private final TalonFX shooter23 = new TalonFX(23);
+    private final TalonFX shooter24 = new TalonFX(24);
+    private final TalonFX shooter25 = new TalonFX(25);
 
     // Bang-bang control parameters
     private double shooterTargetVelocity = 0; // Target velocity in rotations per second
     private final double BANG_BANG_ON_POWER = 1.0; // Full power when below setpoint
     private final double BANG_BANG_OFF_POWER = 0.00; // Power when at/above setpoint
+
+    final VelocityVoltage shooterVoltageRequest = new VelocityVoltage(0.0).withSlot(0);
+
+
 
     public Shooter() {
     //     // Configure shooter motors to coast mode for better bang-bang control
@@ -50,6 +56,7 @@ public class Shooter extends SubsystemBase{
     //     MotorFollower.getConfigurator().apply(currentLimits);
     //     MotorFollower2.getConfigurator().apply(currentLimits);
     //     intakeMotor.getConfigurator().apply(currentLimits);
+
         // in init function, set slot 0 gains
         // PID Controller for shooter
         var slot0Configs = new Slot0Configs();
@@ -59,50 +66,71 @@ public class Shooter extends SubsystemBase{
         slot0Configs.kI = 0; // no output for integrated error
         slot0Configs.kD = 0; // no output for error derivative
 
-        shooterMotor.getConfigurator().apply(slot0Configs);
-        MotorFollower.getConfigurator().apply(slot0Configs);
-        MotorFollower2.getConfigurator().apply(slot0Configs);
+        shooter23.getConfigurator().apply(slot0Configs);
+        shooter24.getConfigurator().apply(slot0Configs);
+        shooter25.getConfigurator().apply(slot0Configs);
+
+
+        // test this once we can get more time with the shooter. 
+        // var motorConfig = new TalonFXConfiguration();
+        // motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        // shooter23.getConfigurator().apply(motorConfig);
+        
+        // motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        // shooter24.getConfigurator().apply(motorConfig);
+
+        // motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        // shooter25.getConfigurator().apply(motorConfig);
 
 
     }
+
+    public Command runPIDShooter(double targetRPS){
+        return new RunCommand(()->{
+            // motor id,  set controls, target RPS, with feedforward to overcome gravity and friction
+            shooter23.setControl(shooterVoltageRequest.withVelocity(-targetRPS).withFeedForward(0.5));
+            shooter24.setControl(shooterVoltageRequest.withVelocity(targetRPS).withFeedForward(0.5));
+            shooter25.setControl(shooterVoltageRequest.withVelocity(-targetRPS).withFeedForward(0.5));
+        }, this 
+        );}
     
 
 
     public Command runShooterIntake(CommandXboxController controllerValue){
         return new RunCommand(() -> 
-            intakeMotor.set(controllerValue.getRightTriggerAxis())
+            intake21.set(controllerValue.getRightTriggerAxis())
             // ,this
     );}
 
     
     public Command runReverseShooterIntake(CommandXboxController controllerValue){
         return new RunCommand(() -> 
-            intakeMotor.set(-1)
+            intake21.set(-1)
             // ,this
     );}
 
     public Command runShooter(CommandXboxController controllerValue){
         return new RunCommand(()-> {
             double speed = controllerValue.getLeftTriggerAxis();
-            shooterMotor.set(-speed);
-            MotorFollower.set(speed);
-            MotorFollower2.set(-speed);
+            shooter23.set(-speed);
+            shooter24.set(speed);
+            shooter25.set(-speed);
         }
-        // ,this
+        ,this
         );
     };
 
     public Command stopShooterIntake(){
         return new InstantCommand(()->
-            intakeMotor.set(0)
+            intake21.set(0)
             // ,this
         );
     }
     public Command stopShooter(){
         return new InstantCommand(()->{
-            shooterMotor.set(0);
-            MotorFollower.set(0);
-            MotorFollower2.set(0);
+            shooter23.set(0);
+            shooter24.set(0);
+            shooter25.set(0);
         }
         ,this
         );
@@ -110,10 +138,10 @@ public class Shooter extends SubsystemBase{
 
     public Command stopAll(){
         return new RunCommand(()->{
-                shooterMotor.set(0);
-                MotorFollower.set(0);
-                MotorFollower2.set(0);
-                intakeMotor.set(0);
+                shooter23.set(0);
+                shooter24.set(0);
+                shooter25.set(0);
+                intake21.set(0);
 
             },
             // ", this" makes sure that only the shooter subsystem object can only run command at a time
@@ -136,7 +164,7 @@ public class Shooter extends SubsystemBase{
      * @return Current velocity in rotations per second
      */
     public double getShooterVelocity() {
-        return shooterMotor.getVelocity().getValueAsDouble();
+        return shooter23.getVelocity().getValueAsDouble();
     }
 
     /**
@@ -147,13 +175,13 @@ public class Shooter extends SubsystemBase{
         double currentVelocity = getShooterVelocity();
 
         if (currentVelocity < shooterTargetVelocity) {
-            shooterMotor.set(-BANG_BANG_ON_POWER);
-            MotorFollower.set(BANG_BANG_ON_POWER);
-            MotorFollower2.set(-BANG_BANG_ON_POWER);
+            shooter23.set(-BANG_BANG_ON_POWER);
+            shooter24.set(BANG_BANG_ON_POWER);
+            shooter25.set(-BANG_BANG_ON_POWER);
         } else {
-            shooterMotor.set(BANG_BANG_OFF_POWER);
-            MotorFollower.set(BANG_BANG_OFF_POWER);
-            MotorFollower2.set(BANG_BANG_OFF_POWER);
+            shooter23.set(BANG_BANG_OFF_POWER);
+            shooter24.set(BANG_BANG_OFF_POWER);
+            shooter25.set(BANG_BANG_OFF_POWER);
         }
     }
 
@@ -180,29 +208,38 @@ public class Shooter extends SubsystemBase{
 
     @Override
     public void periodic(){
-        SmartDashboard.putNumber("Shooter 23" , shooterMotor.get());
-        SmartDashboard.putNumber("Shooter 23 motor output", shooterMotor.getMotorOutputStatus().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 23 voltage", shooterMotor.getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 23 stator current", shooterMotor.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 23 supply voltage", shooterMotor.getSupplyVoltage().getValueAsDouble());
 
 
-        SmartDashboard.putNumber("Shooter 24" , MotorFollower.get());
-        SmartDashboard.putNumber("Shooter 24 motor output", MotorFollower.getMotorOutputStatus().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 24 voltage", MotorFollower.getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 24 stator current", MotorFollower.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 24 supply voltage", MotorFollower.getSupplyVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 23" , shooter23.get());
+        SmartDashboard.putNumber("Shooter 23 motor output", shooter23.getMotorOutputStatus().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 23 voltage", shooter23.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 23 stator current", shooter23.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 23 supply voltage", shooter23.getSupplyVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter target velocity", shooter23.getVelocity().getValueAsDouble());
 
-        SmartDashboard.putNumber("Shooter 25" , MotorFollower2.get());
-        SmartDashboard.putNumber("Shooter 25 motor output", MotorFollower2.getMotorOutputStatus().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 25 voltage", MotorFollower2.getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 25 stator current", MotorFollower2.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 25 supply voltage", MotorFollower2.getSupplyVoltage().getValueAsDouble());
 
-        SmartDashboard.putNumber("Shooter 21" , intakeMotor.get());
-        SmartDashboard.putNumber("Shooter 21 motor output", intakeMotor.getMotorOutputStatus().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 21 voltage", intakeMotor.getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 21 stator current", intakeMotor.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Shooter 21 supply voltage", intakeMotor.getSupplyVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 24" , shooter24.get());
+        SmartDashboard.putNumber("Shooter 24 motor output", shooter24.getMotorOutputStatus().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 24 voltage", shooter24.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 24 stator current", shooter24.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 24 supply voltage", shooter24.getSupplyVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter target velocity", shooter24.getVelocity().getValueAsDouble());
+
+
+        SmartDashboard.putNumber("Shooter 25" , shooter25.get());
+        SmartDashboard.putNumber("Shooter 25 motor output", shooter25.getMotorOutputStatus().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 25 voltage", shooter25.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 25 stator current", shooter25.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 25 supply voltage", shooter25.getSupplyVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter target velocity", shooter25.getVelocity().getValueAsDouble());
+
+
+        SmartDashboard.putNumber("Shooter 21" , intake21.get());
+        SmartDashboard.putNumber("Shooter 21 motor output", intake21.getMotorOutputStatus().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 21 voltage", intake21.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 21 stator current", intake21.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 21 supply voltage", intake21.getSupplyVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter target velocity", intake21.getVelocity().getValueAsDouble());
+
     }
 }

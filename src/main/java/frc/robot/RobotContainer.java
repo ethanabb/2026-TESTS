@@ -102,8 +102,10 @@ public class RobotContainer {
 
     m_driverController.leftTrigger().whileTrue(
       m_shooter.runShooter(m_driverController)).whileFalse(m_shooter.stopShooter());
+    // m_driverController.x().whileTrue(
+    //    m_shooter.runShooterBangBang(50)).whileFalse(m_shooter.stopShooter());
     m_driverController.x().whileTrue(
-       m_shooter.runShooterBangBang(50)).whileFalse(m_shooter.stopShooter());
+      m_shooter.runPIDShooter(60)).whileFalse(m_shooter.stopShooter());
 
 
     // B Button: Run Intake, press again to fall back on default commmand (stop intake)
