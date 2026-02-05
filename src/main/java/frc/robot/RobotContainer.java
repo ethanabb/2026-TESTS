@@ -107,7 +107,7 @@ public class RobotContainer {
 
 
     // B Button: Run Intake, press again to fall back on default commmand (stop intake)
-    // m_driverController.b().toggleOnTrue(m_intake.runIntake());
+    m_driverController.b().toggleOnTrue(m_intake.runIntake());
     
     m_driverController.rightBumper().whileTrue(m_intake.raiseIntake());
     m_driverController.leftBumper().whileTrue(m_intake.lowerIntake());

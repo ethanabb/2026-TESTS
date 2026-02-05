@@ -2,14 +2,19 @@ package frc.robot.subsystems.Drive;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
- 
+import com.ctre.phoenix6.configs.CANcoderConfigurator;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+
 
 
 public class Shooter extends SubsystemBase{
@@ -24,7 +29,7 @@ public class Shooter extends SubsystemBase{
     private final double BANG_BANG_ON_POWER = 1.0; // Full power when below setpoint
     private final double BANG_BANG_OFF_POWER = 0.00; // Power when at/above setpoint
 
-    // public Shooter() {
+    public Shooter() {
     //     // Configure shooter motors to coast mode for better bang-bang control
     //     shooterMotor.setNeutralMode(NeutralModeValue.Coast);
     //     MotorFollower.setNeutralMode(NeutralModeValue.Coast);
@@ -41,10 +46,27 @@ public class Shooter extends SubsystemBase{
     //         .withStatorCurrentLimitEnable(true);  // Enable stator current limiting
 
     //     shooterMotor.getConfigurator().apply(currentLimits);
+
     //     MotorFollower.getConfigurator().apply(currentLimits);
     //     MotorFollower2.getConfigurator().apply(currentLimits);
     //     intakeMotor.getConfigurator().apply(currentLimits);
-    // }
+        // in init function, set slot 0 gains
+        // PID Controller for shooter
+        var slot0Configs = new Slot0Configs();
+        slot0Configs.kS = 0.1; // Add 0.1 V output to overcome static friction
+        slot0Configs.kV = 0.12; // A velocity target of 1 rps results in 0.12 V output
+        slot0Configs.kP = 0.11; // An error of 1 rps results in 0.11 V output
+        slot0Configs.kI = 0; // no output for integrated error
+        slot0Configs.kD = 0; // no output for error derivative
+
+        shooterMotor.getConfigurator().apply(slot0Configs);
+        MotorFollower.getConfigurator().apply(slot0Configs);
+        MotorFollower2.getConfigurator().apply(slot0Configs);
+
+
+    }
+    
+
 
     public Command runShooterIntake(CommandXboxController controllerValue){
         return new RunCommand(() -> 
@@ -161,18 +183,26 @@ public class Shooter extends SubsystemBase{
         SmartDashboard.putNumber("Shooter 23" , shooterMotor.get());
         SmartDashboard.putNumber("Shooter 23 motor output", shooterMotor.getMotorOutputStatus().getValueAsDouble());
         SmartDashboard.putNumber("Shooter 23 voltage", shooterMotor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 23 stator current", shooterMotor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 23 supply voltage", shooterMotor.getSupplyVoltage().getValueAsDouble());
 
 
         SmartDashboard.putNumber("Shooter 24" , MotorFollower.get());
         SmartDashboard.putNumber("Shooter 24 motor output", MotorFollower.getMotorOutputStatus().getValueAsDouble());
         SmartDashboard.putNumber("Shooter 24 voltage", MotorFollower.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 24 stator current", MotorFollower.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 24 supply voltage", MotorFollower.getSupplyVoltage().getValueAsDouble());
 
         SmartDashboard.putNumber("Shooter 25" , MotorFollower2.get());
         SmartDashboard.putNumber("Shooter 25 motor output", MotorFollower2.getMotorOutputStatus().getValueAsDouble());
         SmartDashboard.putNumber("Shooter 25 voltage", MotorFollower2.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 25 stator current", MotorFollower2.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 25 supply voltage", MotorFollower2.getSupplyVoltage().getValueAsDouble());
 
         SmartDashboard.putNumber("Shooter 21" , intakeMotor.get());
         SmartDashboard.putNumber("Shooter 21 motor output", intakeMotor.getMotorOutputStatus().getValueAsDouble());
         SmartDashboard.putNumber("Shooter 21 voltage", intakeMotor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 21 stator current", intakeMotor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Shooter 21 supply voltage", intakeMotor.getSupplyVoltage().getValueAsDouble());
     }
 }

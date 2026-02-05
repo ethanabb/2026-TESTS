@@ -147,7 +147,7 @@ private boolean intakeDeployed = true;
 
     public Command stopAll(){
         return new RunCommand(()->{
-            // leaderIntake.set(stopSpeed);
+            leaderIntake.set(stopSpeed);
             // followerIntake.set(stopSpeed);
             pivotArm.set(stopSpeed);
         },
