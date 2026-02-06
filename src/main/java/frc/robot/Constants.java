@@ -16,8 +16,12 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
   
+  public static boolean overrideEnabled = false; 
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+
+
     
   }
   
@@ -33,5 +37,6 @@ public final class Constants {
     
     // Profiled PID Gains for Theta (Rotation) control (TUNING REQUIRED)
     public static final double kPThetaController = 1.0;
+    
   }
 }

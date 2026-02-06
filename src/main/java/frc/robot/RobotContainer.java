@@ -17,6 +17,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Drive.Shooter;
@@ -77,6 +80,7 @@ public class RobotContainer {
       m_index.stopAll()
     );
 
+
     // Configure the trigger bindings
     configureBindings();
   }
@@ -119,11 +123,34 @@ public class RobotContainer {
     // B Button: Run Intake, press again to fall back on default commmand (stop intake)
     m_driverController.b().toggleOnTrue(m_intake.runIntake());
     
-    m_driverController.rightBumper().whileTrue(m_intake.raiseIntakeManual());
-    m_driverController.leftBumper().whileTrue(m_intake.lowerIntakeManual());
+    // m_driverController.rightBumper().whileTrue(m_intake.raiseIntakeManual());
+    // m_driverController.leftBumper().whileTrue(m_intake.lowerIntakeManual());
 
     m_driverController.y().onTrue(m_intake.toggleIntake());
     // m_driverController.x().whileTrue(m_intake.runIntake());
+
+    // test override commands
+    m_driverController.start()
+    .onTrue(new InstantCommand(()-> Constants.overrideEnabled = true))
+    .onFalse(new InstantCommand(() -> Constants.overrideEnabled = false));
+
+    // button layout work in progress aka test binds
+
+    m_driverController.povUp().onTrue(
+      new ConditionalCommand(
+        m_intake.raiseIntakeAuto(),  // if override = false, run auto raise intake
+        m_intake.raiseIntakeManual(),  //  if override = true, run manual raise intake
+        ()-> Constants.overrideEnabled)
+    );
+
+    m_driverController.povDown().onTrue(
+      new ConditionalCommand(
+        m_intake.lowerIntakeAuto(),  // if override = false, run auto raise intake
+        m_intake.lowerIntakeManual(),  //  if override = true, run manual raise intake
+        ()-> Constants.overrideEnabled)
+    );
+
+
   }
     
 
@@ -134,4 +161,30 @@ public class RobotContainer {
    */
   // public Command getAutonomousCommand() {
   // }
+
+  public void periodic(){
+    SmartDashboard.putData(CommandScheduler.getInstance());
+    SmartDashboard.putData(m_shooter);
+    SmartDashboard.putData(m_intake);
+    SmartDashboard.putData(m_index);
+    
+    // activating commands with a button test via SmartDashboard
+    SmartDashboard.putData("Toggle intake command", m_intake.toggleIntake());
+    SmartDashboard.putData("Auto raise intake command", m_intake.raiseIntakeAuto());
+    SmartDashboard.putData("Auto lower intake command", m_intake.lowerIntakeAuto());
+    SmartDashboard.putData("Toggle intake test command", m_intake.raiseIntakeAuto());
+
+    SmartDashboard.putData("Run shooter forward", m_shooter.runShooter(m_driverController));
+    SmartDashboard.putData("Run shooter backward", m_shooter.runReverseShooter(m_driverController));
+    SmartDashboard.putData("Run PID shooter", m_shooter.runPIDShooter(60));
+
+    SmartDashboard.putData("Run index regular", m_index.runIndex(m_driverController));
+    SmartDashboard.putData("Run index reversed", m_index.runReverseIndex(m_driverController));
+
+
+
+
+
+  }
 }
+

@@ -98,6 +98,16 @@ public class Shooter extends SubsystemBase{
         );
     };
 
+    public Command runReverseShooter(CommandXboxController controllerValue){
+        return new RunCommand(()-> {
+            double speed = controllerValue.getLeftTriggerAxis();
+            shooter23.set(speed);
+            shooter24.set(-speed);
+            shooter25.set(speed);
+        }
+        ,this
+        );
+    };
  
     public Command stopShooter(){
         return new InstantCommand(()->{

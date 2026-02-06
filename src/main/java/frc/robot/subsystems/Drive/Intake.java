@@ -31,12 +31,13 @@ public class Intake extends SubsystemBase{
     
     // private final TalonFX leaderIntake = new TalonFX(24);
     // private final TalonFX followerIntake = new TalonFX(25);
-    private final SparkFlex leaderIntake = new SparkFlex(24, MotorType.kBrushless);
+    private final SparkFlex leaderIntake = new SparkFlex(24, MotorType.kBrushless); // Neo brushless vortex
+    
 
     // private final SparkMax leaderIntake = new SparkMax(24, MotorType.kBrushless);
     // private final SparkMax followerIntake = new SparkMax(25, MotorType.kBrushless);
 
-    private final SparkMax pivotArm = new SparkMax(28, MotorType.kBrushless);
+    private final SparkMax pivotArm = new SparkMax(28, MotorType.kBrushless); // CanSpark Max with Neo brushless motor
 
     // private final SparkFlex pivotArm = new SparkFlex(28, MotorType.kBrushless);
 
@@ -51,6 +52,15 @@ public class Intake extends SubsystemBase{
     public Command runIntake(){
         return new RunCommand(() -> {
             leaderIntake.set(setSpeed);
+            // followerIntake.set(-setSpeed);
+        }
+        // , this 
+        );
+    }
+
+    public Command runReverseIntake(){
+        return new RunCommand(() -> {
+            leaderIntake.set(-setSpeed);
             // followerIntake.set(-setSpeed);
         }
         // , this 
