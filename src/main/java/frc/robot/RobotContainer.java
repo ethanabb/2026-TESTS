@@ -41,6 +41,7 @@ public class RobotContainer {
       private final Shooter m_shooter = new Shooter();
       private final Intake m_intake = new Intake();
       private final Index m_index = new Index();
+      private final RobotContainer mRobotContainer = new RobotContainer();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   static final CommandXboxController m_driverController =
@@ -58,15 +59,15 @@ public class RobotContainer {
             // () -> 0.0
         )
     );
-      m_driverController.a().whileTrue(
-        m_swerveSubsystem.driveCommandL(
-          () -> MathUtil.applyDeadband(m_Vision.limelight_range_proportional(), .15),
-          // () -> 0.0,
-          () -> 0.0, 
-          // () -> 0.0
-          () -> MathUtil.applyDeadband(m_Vision.limelight_aim_proportional(), .15)
-          )
-    );
+    //   m_driverController.a().whileTrue(
+    //     m_swerveSubsystem.driveCommandL(
+    //       () -> MathUtil.applyDeadband(m_Vision.limelight_range_proportional(), .15),
+    //       // () -> 0.0,
+    //       () -> 0.0, 
+    //       // () -> 0.0
+    //       () -> MathUtil.applyDeadband(m_Vision.limelight_aim_proportional(), .15)
+    //       )
+    // );
       // make sure all subsystems have a default command to fall back upon when not being called
     m_shooter.setDefaultCommand(
       m_shooter.stopAll()
@@ -136,17 +137,17 @@ public class RobotContainer {
 
     // button layout work in progress aka test binds
 
-    m_driverController.povUp().onTrue(
+    m_driverController.povUp().whileTrue(
       new ConditionalCommand(
-        m_intake.raiseIntakeAuto(),  // if override = false, run auto raise intake
         m_intake.raiseIntakeManual(),  //  if override = true, run manual raise intake
+        m_intake.raiseIntakeAuto(),  // if override = false, run auto raise intake
         ()-> Constants.overrideEnabled)
     );
 
-    m_driverController.povDown().onTrue(
+    m_driverController.povDown().whileTrue(
       new ConditionalCommand(
-        m_intake.lowerIntakeAuto(),  // if override = false, run auto raise intake
         m_intake.lowerIntakeManual(),  //  if override = true, run manual raise intake
+        m_intake.lowerIntakeAuto(),  // if override = false, run auto raise intake
         ()-> Constants.overrideEnabled)
     );
 
@@ -161,29 +162,24 @@ public class RobotContainer {
    */
   // public Command getAutonomousCommand() {
   // }
-
   public void periodic(){
     SmartDashboard.putData(CommandScheduler.getInstance());
     SmartDashboard.putData(m_shooter);
     SmartDashboard.putData(m_intake);
     SmartDashboard.putData(m_index);
-    
+
     // activating commands with a button test via SmartDashboard
-    SmartDashboard.putData("Toggle intake command", m_intake.toggleIntake());
-    SmartDashboard.putData("Auto raise intake command", m_intake.raiseIntakeAuto());
-    SmartDashboard.putData("Auto lower intake command", m_intake.lowerIntakeAuto());
-    SmartDashboard.putData("Toggle intake test command", m_intake.raiseIntakeAuto());
+    // SmartDashboard.putData("Toggle intake command", m_intake.toggleIntake());
+    // SmartDashboard.putData("Auto raise intake command", m_intake.raiseIntakeAuto());
+    // SmartDashboard.putData("Auto lower intake command", m_intake.lowerIntakeAuto());
+    // SmartDashboard.putData("Toggle intake test command", m_intake.raiseIntakeAuto());
 
-    SmartDashboard.putData("Run shooter forward", m_shooter.runShooter(m_driverController));
-    SmartDashboard.putData("Run shooter backward", m_shooter.runReverseShooter(m_driverController));
-    SmartDashboard.putData("Run PID shooter", m_shooter.runPIDShooter(60));
+    // SmartDashboard.putData("Run shooter forward", m_shooter.runShooter(m_driverController));
+    // SmartDashboard.putData("Run shooter backward", m_shooter.runReverseShooter(m_driverController));
+    // SmartDashboard.putData("Run PID shooter", m_shooter.runPIDShooter(60));
 
-    SmartDashboard.putData("Run index regular", m_index.runIndex(m_driverController));
-    SmartDashboard.putData("Run index reversed", m_index.runReverseIndex(m_driverController));
-
-
-
-
+    // SmartDashboard.putData("Run index regular", m_index.runIndex(m_driverController));
+    // SmartDashboard.putData("Run index reversed", m_index.runReverseIndex(m_driverController));
 
   }
 }
