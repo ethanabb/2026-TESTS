@@ -19,12 +19,16 @@ public class Arm extends SubsystemBase{
     // private final SparkMax followerIntake = new SparkMax(25, MotorType.kBrushless);
 
     private final SparkMax pivotArm = new SparkMax(28, MotorType.kBrushless); // CanSpark Max with Neo brushless motor
+
     // when requesting a digital input, the boolean value will always be true if it is unplugged. 
     private final DigitalInput lowerLimitSwitch = new DigitalInput(3);
     private final DigitalInput upperLimitSwitch = new DigitalInput(2);
+
     private final double pivotSpeed = 0.1;
     private final double stopSpeed = 0.0;
 
+    private boolean intakeDeployed = true; 
+    
      public Command stopAll(){
         return new RunCommand(()->{
             pivotArm.set(stopSpeed);
@@ -37,11 +41,9 @@ public class Arm extends SubsystemBase{
     public Command lowerArmManual(){
         return new RunCommand(() -> {
             if (!lowerLimitSwitch.get()){
-                // System.out.println("Lower limit switch triggered");
                 pivotArm.set(stopSpeed);  // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
             } else {
                 pivotArm.set(pivotSpeed);
-                // System.out.println("Lowering intake");
             }
         }
         // ensures when this command runs, it has sole control of the intake subsystem
@@ -53,10 +55,8 @@ public class Arm extends SubsystemBase{
         return new RunCommand(() -> {
             if (!upperLimitSwitch.get()){ 
                 pivotArm.set(stopSpeed); // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
-                // System.out.println("Upper limit switch triggered");
             } else {
                 pivotArm.set(-pivotSpeed);
-                // System.out.println("Raising intake");
             }
         }
         , this
@@ -64,7 +64,6 @@ public class Arm extends SubsystemBase{
     }
 // // test code for auto deploy
 //     private boolean intakeDeployed = true;
-private boolean intakeDeployed = true; 
     // public Command toggleIntake(){
     //     return new InstantCommand(()->{
     //         if(intakeDeployed){
