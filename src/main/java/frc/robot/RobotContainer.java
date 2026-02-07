@@ -139,7 +139,7 @@ public class RobotContainer {
     .onTrue(new InstantCommand(()-> Constants.overrideEnabled = true))
     .onFalse(new InstantCommand(() -> Constants.overrideEnabled = false));
 
-    // button layout work in progress aka test binds
+    // dpad binds
     m_driverController.povUp().whileTrue(
       new ConditionalCommand(
         m_arm.raiseArmManual(),  //  if override = true, run manual raise intake
@@ -153,20 +153,24 @@ public class RobotContainer {
         m_arm.lowerArmAuto(),  // if override = false, run auto raise intake
         ()-> Constants.overrideEnabled)
     );
-    
+
+    // m_driverController.povLeft();
+    // m_driverController.povRight();
+
+    // Trigger and bumper binds
     m_driverController.leftBumper().whileTrue(
       new ConditionalCommand(
-       m_index.runIndex(-1),
-       m_index.runIndex(1),
+       m_intake.runIntake(),
+       m_intake.runIntake(),
       () -> Constants.overrideEnabled)
       );
-    
+
     m_driverController.rightBumper().whileTrue(
       new ConditionalCommand(
        m_shooter.runShooter(-1),
        m_shooter.runPIDShooter(60),
       () -> Constants.overrideEnabled)
-      );
+      );    
       
     m_driverController.leftTrigger().whileTrue(
       new ConditionalCommand(
@@ -182,9 +186,20 @@ public class RobotContainer {
         () -> Constants.overrideEnabled)
       );
 
+    // button binds
     m_driverController.b().toggleOnTrue(m_intake.runIntake());
-    m_driverController.a().toggleOnTrue(m_index.runIndex(1));
+    m_driverController.x().whileTrue(
+      new ConditionalCommand(
+       m_index.runIndex(-1),
+       m_index.runIndex(1),
+      () -> Constants.overrideEnabled)
+      );
 
+    // m_driverController.a();
+    // m_driverController.y();
+
+
+  // m_driverController.x().toggleOnTrue(m_index.runIndex(1));
 
 
   }
