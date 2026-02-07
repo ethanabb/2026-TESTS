@@ -34,27 +34,20 @@ public class Intake extends SubsystemBase{
     private final SparkFlex leaderIntake = new SparkFlex(24, MotorType.kBrushless); // Neo brushless vortex
     
 
-    // private final SparkMax leaderIntake = new SparkMax(24, MotorType.kBrushless);
-    // private final SparkMax followerIntake = new SparkMax(25, MotorType.kBrushless);
 
-    private final SparkMax pivotArm = new SparkMax(28, MotorType.kBrushless); // CanSpark Max with Neo brushless motor
-
+    // pivotArm.setIdleMode(IdleMode.kBrake);
     // private final SparkFlex pivotArm = new SparkFlex(28, MotorType.kBrushless);
-
-    // when requesting a digital input, the boolean value will always be true if it is unplugged. 
-    private final DigitalInput lowerLimitSwitch = new DigitalInput(3);
-    private final DigitalInput upperLimitSwitch = new DigitalInput(2);
 
     private final double stopSpeed = 0.0;
     private final double setSpeed = 0.1;
-    private final double pivotSpeed = 0.1;
+
     
     public Command runIntake(){
         return new RunCommand(() -> {
             leaderIntake.set(setSpeed);
             // followerIntake.set(-setSpeed);
         }
-        // , this 
+        , this 
         );
     }
 
@@ -63,93 +56,8 @@ public class Intake extends SubsystemBase{
             leaderIntake.set(-setSpeed);
             // followerIntake.set(-setSpeed);
         }
-        // , this 
+        , this 
         );
-    }
-
-    // Press and hold verision
-    public Command lowerIntakeManual(){
-        return new RunCommand(() -> {
-            if (!lowerLimitSwitch.get()){
-                // System.out.println("Lower limit switch triggered");
-                pivotArm.set(stopSpeed);  // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
-            } else {
-                pivotArm.set(pivotSpeed);
-                // System.out.println("Lowering intake");
-            }
-        }
-        // ensures when this command runs, it has sole control of the intake subsystem
-        , this
-        );
-    }
-     // Press and hold verision
-    public Command raiseIntakeManual(){
-        return new RunCommand(() -> {
-            if (!upperLimitSwitch.get()){ 
-                pivotArm.set(stopSpeed); // CONFIRM ROTATION DIRECTION BEFORE RUNNING THIS CODE
-                // System.out.println("Upper limit switch triggered");
-            } else {
-                pivotArm.set(-pivotSpeed);
-                // System.out.println("Raising intake");
-            }
-        }
-        , this
-        );
-    }
-// // test code for auto deploy
-//     private boolean intakeDeployed = true;
-private boolean intakeDeployed = true; 
-    // public Command toggleIntake(){
-    //     return new InstantCommand(()->{
-    //         if(intakeDeployed){
-    //             raiseIntakeAuto()
-    //             .schedule();
-    //         } else {
-    //             lowerIntakeAuto()
-    //             .schedule();
-    //         }
-    //         intakeDeployed = !intakeDeployed;
-    //     }
-    //     // , this 
-    //     );
-    // }
-
-    public Command toggleIntake(){
-        return new ConditionalCommand(
-            raiseIntakeAuto(), // runs when intakeDeployed = true
-            lowerIntakeAuto(), // runs when intakeDeployed = false
-            () -> intakeDeployed // the condition used to determine what command to run
-        );
-    }
-    
-    public Command lowerIntakeAuto(){
-        return new RunCommand(()->{
-            pivotArm.set(pivotSpeed);
-        }
-        , this)
-        .until(()-> !lowerLimitSwitch.get()) // runs until limit switch is triggered
-        .unless(()-> !lowerLimitSwitch.get()) // prevents running if limit switch is already triggered
-        .finallyDo(interrupted -> { 
-            pivotArm.set(stopSpeed); 
-            if (!interrupted) {
-                intakeDeployed = true;
-            }
-        });
-    }
-
-    public Command raiseIntakeAuto(){
-        return new RunCommand(()->{
-            pivotArm.set(-pivotSpeed);
-        }
-        , this)
-        .until(()-> !upperLimitSwitch.get())
-        .unless(()-> !upperLimitSwitch.get())
-        .finallyDo(interrupted -> {
-            pivotArm.set(stopSpeed);
-            if (!interrupted) {
-                intakeDeployed = false;
-            }
-        });
     }
 
 
@@ -157,7 +65,6 @@ private boolean intakeDeployed = true;
         return new RunCommand(()->{
             leaderIntake.set(stopSpeed);
             // followerIntake.set(stopSpeed);
-            pivotArm.set(stopSpeed);
         },
         this
         );
@@ -166,13 +73,12 @@ private boolean intakeDeployed = true;
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        SmartDashboard.putBoolean("lower limit", lowerLimitSwitch.get());
-        SmartDashboard.putBoolean("upper limit", upperLimitSwitch.get());
+
+        SmartDashboard.putData("run intake", runIntake());
+        SmartDashboard.putData("run reverse intake", runReverseIntake());
 
         // activating commands with a button test via SmartDashboard
-        SmartDashboard.putData("Toggle intake command", toggleIntake());
-        SmartDashboard.putData("Auto raise intake command", raiseIntakeAuto());
-        SmartDashboard.putData("Auto lower intake command", lowerIntakeAuto());
-        SmartDashboard.putData("Toggle intake test command", raiseIntakeAuto());
+        SmartDashboard.putData("run intake command", runIntake());
+        SmartDashboard.putData("run reverse intake command", runReverseIntake());
     }
 }

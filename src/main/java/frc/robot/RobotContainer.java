@@ -25,6 +25,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Drive.Shooter;
 import frc.robot.subsystems.Drive.Intake;
 import frc.robot.subsystems.Drive.Index;
+// import frc.robot.subsystems.Drive.Climb;
+import frc.robot.subsystems.Drive.Arm;
 
 
 /**
@@ -41,7 +43,9 @@ public class RobotContainer {
       private final Shooter m_shooter = new Shooter();
       private final Intake m_intake = new Intake();
       private final Index m_index = new Index();
-      private final RobotContainer mRobotContainer = new RobotContainer();
+      // private final RobotContainer m_robotContainer = new RobotContainer();
+      // private final Climb m_climb = new Climb();
+      private final Arm m_arm = new Arm();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   static final CommandXboxController m_driverController =
@@ -138,15 +142,15 @@ public class RobotContainer {
     // button layout work in progress aka test binds
     m_driverController.povUp().whileTrue(
       new ConditionalCommand(
-        m_intake.raiseIntakeManual(),  //  if override = true, run manual raise intake
-        m_intake.raiseIntakeAuto(),  // if override = false, run auto raise intake
+        m_arm.raiseArmManual(),  //  if override = true, run manual raise intake
+        m_arm.raiseArmAuto(),  // if override = false, run auto raise intake
         ()-> Constants.overrideEnabled)
     );
 
     m_driverController.povDown().whileTrue(
       new ConditionalCommand(
-        m_intake.lowerIntakeManual(),  //  if override = true, run manual raise intake
-        m_intake.lowerIntakeAuto(),  // if override = false, run auto raise intake
+        m_arm.lowerArmManual(),  //  if override = true, run manual raise intake
+        m_arm.lowerArmAuto(),  // if override = false, run auto raise intake
         ()-> Constants.overrideEnabled)
     );
     
@@ -198,6 +202,7 @@ public class RobotContainer {
     SmartDashboard.putData(m_shooter);
     SmartDashboard.putData(m_intake);
     SmartDashboard.putData(m_index);
+    SmartDashboard.putData(m_arm);
   }
 }
 
