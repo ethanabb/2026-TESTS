@@ -21,13 +21,22 @@ public class Index extends SubsystemBase{
             intake21.set(controllerValue.getRightTriggerAxis())
             ,this
     );}
-
-    
     public Command runReverseIndex(CommandXboxController controllerValue){
         return new RunCommand(() -> 
-            intake21.set(-1)
+            intake21.set(-controllerValue.getRightTriggerAxis())
             ,this
     );}
+
+    public Command runIndex(double speed){
+        return new RunCommand(() -> 
+            intake21.set(speed)
+            ,this
+    );}
+    // public Command runReverseIndex(){
+    //     return new RunCommand(() -> 
+    //         intake21.set(-1)
+    //         ,this
+    // );}
 
     public Command stopIndex(){
         return new InstantCommand(()->
@@ -54,5 +63,8 @@ public void periodic() {
     SmartDashboard.putNumber("Shooter 21 stator current", intake21.getStatorCurrent().getValueAsDouble());
     SmartDashboard.putNumber("Shooter 21 supply voltage", intake21.getSupplyVoltage().getValueAsDouble());
     SmartDashboard.putNumber("Shooter target velocity", intake21.getVelocity().getValueAsDouble());
+
+    SmartDashboard.putData("Run index regular", runIndex(1));
+    SmartDashboard.putData("Run index reversed", runIndex(-1));
 }   
-}
+} 

@@ -98,6 +98,16 @@ public class Shooter extends SubsystemBase{
         );
     };
 
+    public Command runShooter(double speed){
+        return new RunCommand(()-> {
+            shooter23.set(-speed);
+            shooter24.set(speed);
+            shooter25.set(-speed);
+        }
+        ,this
+        );
+    };
+
     public Command runReverseShooter(CommandXboxController controllerValue){
         return new RunCommand(()-> {
             double speed = controllerValue.getLeftTriggerAxis();
@@ -108,6 +118,16 @@ public class Shooter extends SubsystemBase{
         ,this
         );
     };
+
+    // public Command runReverseShooter(double speed){
+    //     return new RunCommand(()-> {
+    //         shooter23.set(speed);
+    //         shooter24.set(-speed);
+    //         shooter25.set(speed);
+    //     }
+    //     ,this
+    //     );
+    // };
  
     public Command stopShooter(){
         return new InstantCommand(()->{
@@ -190,7 +210,9 @@ public class Shooter extends SubsystemBase{
 
     @Override
     public void periodic(){
-
+        SmartDashboard.putData("Run shooter forward", runShooter(1));
+        SmartDashboard.putData("Run shooter backward", runShooter(-1));
+        SmartDashboard.putData("Run PID shooter", runPIDShooter(60));
 
         SmartDashboard.putNumber("Shooter 23" , shooter23.get());
         SmartDashboard.putNumber("Shooter 23 motor output", shooter23.getMotorOutputStatus().getValueAsDouble());

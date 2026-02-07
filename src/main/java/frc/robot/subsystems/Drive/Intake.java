@@ -168,5 +168,11 @@ private boolean intakeDeployed = true;
         // This method will be called once per scheduler run
         SmartDashboard.putBoolean("lower limit", lowerLimitSwitch.get());
         SmartDashboard.putBoolean("upper limit", upperLimitSwitch.get());
+
+        // activating commands with a button test via SmartDashboard
+        SmartDashboard.putData("Toggle intake command", toggleIntake());
+        SmartDashboard.putData("Auto raise intake command", raiseIntakeAuto());
+        SmartDashboard.putData("Auto lower intake command", lowerIntakeAuto());
+        SmartDashboard.putData("Toggle intake test command", raiseIntakeAuto());
     }
 }
