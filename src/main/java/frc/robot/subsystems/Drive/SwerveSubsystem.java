@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.util.function.DoubleSupplier;
 
 import com.google.flatbuffers.Constants;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 // import com.studica.frc.AHRS;
@@ -96,8 +100,18 @@ public class SwerveSubsystem extends SubsystemBase {
     poseYEntry = m_swerveTab.add("Pose Y (m)", 0.0).getEntry();
     poseRotDegEntry = m_swerveTab.add("Pose Rot (deg)", 0.0).getEntry();
 
+    configureAutoBuilder();
 
+  }
 
+  private void configureAutoBuilder() {
+    RobotConfig config;
+    try {
+      config = RobotConfig.fromGUISettings();
+    } catch(Exception e) {
+      e.printStackTrace();
+      return;
+    }
   }
   
 

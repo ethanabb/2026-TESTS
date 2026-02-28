@@ -9,12 +9,15 @@ import frc.robot.subsystems.Drive.SwerveSubsystem;
 import frc.robot.subsystems.Drive.Vision;
 import frc.robot.commands.DriveToPointCommand;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -22,11 +25,6 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.Drive.Shooter;
-import frc.robot.subsystems.Drive.Intake;
-import frc.robot.subsystems.Drive.Index;
-// import frc.robot.subsystems.Drive.Climb;
-import frc.robot.subsystems.Drive.Arm;
 
 
 /**
@@ -40,12 +38,8 @@ public class RobotContainer {
 //   private final TestFile m_TestFilep = new TestFile();
       private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem();
       private final Vision m_Vision = new Vision(); 
-      private final Shooter m_shooter = new Shooter();
-      private final Intake m_intake = new Intake();
-      private final Index m_index = new Index();
-      // private final RobotContainer m_robotContainer = new RobotContainer();
-      // private final Climb m_climb = new Climb();
-      private final Arm m_arm = new Arm();
+
+      private final SendableChooser<Command> autoChooser;
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   static final CommandXboxController m_driverController =
@@ -53,6 +47,9 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
      m_swerveSubsystem.setDefaultCommand(
         m_swerveSubsystem.driveCommandF(
             () -> MathUtil.applyDeadband(-m_driverController.getLeftY(), .15),
@@ -73,17 +70,6 @@ public class RobotContainer {
     //       )
     // );
       // make sure all subsystems have a default command to fall back upon when not being called
-    m_shooter.setDefaultCommand(
-      m_shooter.stopAll()
-    );
-    
-    m_intake.setDefaultCommand(
-      m_intake.stopAll()
-    );
-
-    m_index.setDefaultCommand(
-      m_index.stopAll()
-    );
 
 
     // Configure the trigger bindings
@@ -138,70 +124,6 @@ public class RobotContainer {
     m_driverController.start()
     .onTrue(new InstantCommand(()-> Constants.overrideEnabled = true))
     .onFalse(new InstantCommand(() -> Constants.overrideEnabled = false));
-
-    // dpad binds
-    m_driverController.povUp().whileTrue(
-      new ConditionalCommand(
-        m_arm.raiseArmManual(),  //  if override = true, run manual raise intake
-        m_arm.raiseArmAuto(),  // if override = false, run auto raise intake
-        ()-> Constants.overrideEnabled)
-    );
-
-    m_driverController.povDown().whileTrue(
-      new ConditionalCommand(
-        m_arm.lowerArmManual(),  //  if override = true, run manual raise intake
-        m_arm.lowerArmAuto(),  // if override = false, run auto raise intake
-        ()-> Constants.overrideEnabled)
-    );
-
-    // m_driverController.povLeft();
-    // m_driverController.povRight();
-
-    // Trigger and bumper binds
-    m_driverController.leftBumper().whileTrue(
-      new ConditionalCommand(
-       m_intake.runIntake(),
-       m_intake.runIntake(),
-      () -> Constants.overrideEnabled)
-      );
-
-    m_driverController.rightBumper().whileTrue(
-      new ConditionalCommand(
-       m_shooter.runShooter(-1),
-       m_shooter.runPIDShooter(60),
-      () -> Constants.overrideEnabled)
-      );    
-      
-    m_driverController.leftTrigger().whileTrue(
-      new ConditionalCommand(
-        m_shooter.runReverseShooter(m_driverController),
-        m_shooter.runShooter(m_driverController),
-        () -> Constants.overrideEnabled)
-      );
-
-    m_driverController.rightTrigger().whileTrue(
-      new ConditionalCommand(
-        m_index.runReverseIndex(m_driverController),
-        m_index.runIndex(m_driverController),
-        () -> Constants.overrideEnabled)
-      );
-
-    // button binds
-    m_driverController.b().toggleOnTrue(m_intake.runIntake());
-    m_driverController.x().whileTrue(
-      new ConditionalCommand(
-       m_index.runIndex(-1),
-       m_index.runIndex(1),
-      () -> Constants.overrideEnabled)
-      );
-
-    // m_driverController.a();
-    // m_driverController.y();
-
-
-  // m_driverController.x().toggleOnTrue(m_index.runIndex(1));
-
-
   }
     
 
@@ -210,14 +132,12 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  // public Command getAutonomousCommand() {
-  // }
+  public Command getAutonomousCommand() {
+    return autoChooser.getSelected();
+  }
   public void periodic(){
     SmartDashboard.putData(CommandScheduler.getInstance());
-    SmartDashboard.putData(m_shooter);
-    SmartDashboard.putData(m_intake);
-    SmartDashboard.putData(m_index);
-    SmartDashboard.putData(m_arm);
+
   }
 }
 
