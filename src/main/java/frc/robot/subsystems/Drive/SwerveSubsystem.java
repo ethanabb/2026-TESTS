@@ -46,6 +46,29 @@ import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 import edu.wpi.first.networktables.GenericEntry;
+// WPILib SmartDashboard imports
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import static edu.wpi.first.units.Units.*;
+
+import java.util.Optional;
+import java.util.function.Supplier;
+
+import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
+
 
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -60,7 +83,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private final Field2d m_field = new Field2d();
 
   private final ShuffleboardTab m_swerveTab = Shuffleboard.getTab("DriveSubsystem");
-  
+
   private double previous;
 
   //END OF POSE-ESTIMATOR Objects
@@ -74,7 +97,6 @@ public class SwerveSubsystem extends SubsystemBase {
   
   // Constructor
   public SwerveSubsystem() {
-    // create swerve directory
     File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve");
     //parse swerve directory; if wrong parameters are used, process will be output in the terminal
     try {
@@ -100,25 +122,46 @@ public class SwerveSubsystem extends SubsystemBase {
     poseYEntry = m_swerveTab.add("Pose Y (m)", 0.0).getEntry();
     poseRotDegEntry = m_swerveTab.add("Pose Rot (deg)", 0.0).getEntry();
 
+    // Configure PathPlanner AutoBuilder
     configureAutoBuilder();
-
   }
 
   private void configureAutoBuilder() {
     RobotConfig config;
     try {
       config = RobotConfig.fromGUISettings();
-    } catch(Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       return;
     }
+
+    AutoBuilder.configure(
+        this::getPose,
+        this::resetOdometry,
+        this::getRobotVelocity,
+        (speeds, feedforwards) -> setChassisSpeeds(speeds),
+        new PPHolonomicDriveController(
+            new PIDConstants(5.0, 0.0, 0.0),
+            new PIDConstants(5.0, 0.0, 0.0)
+        ),
+        config,
+        () -> {
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          }
+          return false;
+        },
+        this
+    );
   }
+
+  
+   
+  
+  
   
 
-  // Reset Pose2d Odeometry
-  public void resetOdometry(Pose2d pose) {
-    m_poseEstimator.resetPosition(m_swerveDrive.getYaw(), getModulePositions(), pose);
-  }
   
   // Zero the acutal physical gyro on the bot
   public Command zeroGyro(){
@@ -131,8 +174,6 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command resetOdometryCommand(Pose2d pose) {
     return runOnce(() -> resetOdometry(pose));
   }
-  
-  
 
   // Gets the positions by getting distance and rotation from the encoders.
   // Yagsl does this for you, this method is how you make it do that.
@@ -150,12 +191,33 @@ public class SwerveSubsystem extends SubsystemBase {
   
   // Gets the pose of our Pose2d object
   public Pose2d getPose() {
-    return m_poseEstimator.getEstimatedPosition();
+    return m_swerveDrive.getPose();
   }
+
+  
+ public void resetOdometry(Pose2d initialHolonomicPose)
+  {
+    m_swerveDrive.resetOdometry(initialHolonomicPose);
+  }
+
+
+
+
+     public void setChassisSpeeds(ChassisSpeeds chassisSpeeds)
+  {
+    m_swerveDrive.setChassisSpeeds(chassisSpeeds);
+  }
+
+  public ChassisSpeeds getRobotVelocity()
+  {
+    return m_swerveDrive.getRobotVelocity();
+  }
+ 
 
   public SwerveDriveKinematics getKinematics() {
     return m_Kinematics;
   }
+
 
 
   public void setModuleStates(SwerveModuleState[] desiredStates) {
@@ -333,6 +395,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   }
 
+  
 
 
 }

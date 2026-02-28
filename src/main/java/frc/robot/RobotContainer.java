@@ -9,6 +9,7 @@ import frc.robot.subsystems.Drive.SwerveSubsystem;
 import frc.robot.subsystems.Drive.Vision;
 import frc.robot.commands.DriveToPointCommand;
 
+import com.ctre.phoenix6.Utils;
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.MathUtil;
@@ -35,11 +36,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-//   private final TestFile m_TestFilep = new TestFile();
-      private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem();
-      private final Vision m_Vision = new Vision(); 
-
-      private final SendableChooser<Command> autoChooser;
+  private final SwerveSubsystem m_swerveSubsystem = new SwerveSubsystem();
+  private final Vision m_Vision = new Vision();
+  private final SendableChooser<Command> autoChooser;
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   static final CommandXboxController m_driverController =
@@ -47,33 +46,26 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-
+    // Build auto chooser from PathPlanner
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
+
      m_swerveSubsystem.setDefaultCommand(
         m_swerveSubsystem.driveCommandF(
             () -> MathUtil.applyDeadband(-m_driverController.getLeftY(), .15),
             () -> MathUtil.applyDeadband(-m_driverController.getLeftX(), .15),
             () -> MathUtil.applyDeadband(-m_driverController.getRightX(), .15)
-            // () -> 0.0,
-            // () -> 0.0,
-            // () -> 0.0
         )
     );
-    //   m_driverController.a().whileTrue(
-    //     m_swerveSubsystem.driveCommandL(
-    //       () -> MathUtil.applyDeadband(m_Vision.limelight_range_proportional(), .15),
-    //       // () -> 0.0,
-    //       () -> 0.0, 
-    //       // () -> 0.0
-    //       () -> MathUtil.applyDeadband(m_Vision.limelight_aim_proportional(), .15)
-    //       )
-    // );
-      // make sure all subsystems have a default command to fall back upon when not being called
-
 
     // Configure the trigger bindings
     configureBindings();
+
+    // Set simulation starting pose
+        if (Utils.isSimulation()) {
+            m_swerveSubsystem.resetOdometry(new Pose2d(3.5, 4.0, new Rotation2d(0)));
+        }
+
   }
 
   /**
@@ -86,40 +78,6 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-
-    // X Button: Drive to a specific absolute field coordinate (Example: 5.0m X, 1.5m Y, facing 0 degrees)
-    // m_driverController.x().onTrue(
-    //     DriveToPointCommand.getCommand(
-    //         new Pose2d(15.0, .65, Rotation2d.fromDegrees(0)), 
-    //         m_swerveSubsystem
-    //     ).andThen(m_swerveSubsystem::stop)
-    // );
-
-// working code for index runner
-    // m_driverController.rightTrigger().whileTrue(
-    //   m_index.runIndex(m_driverController)).whileFalse(m_index.stopIndex());
-    // m_driverController.a().whileTrue(
-    //   m_index.runReverseIndex(m_driverController)).whileFalse(m_index.stopIndex());
-
-
-    // m_driverController.leftTrigger().whileTrue(
-    //   m_shooter.runShooter(m_driverController)).whileFalse(m_shooter.stopShooter());
-    // m_driverController.x().whileTrue(
-    //    m_shooter.runShooterBangBang(50)).whileFalse(m_shooter.stopShooter());
-    // m_driverController.x().whileTrue(
-    //   m_shooter.runPIDShooter(60)).whileFalse(m_shooter.stopShooter());
-
-
-    // B Button: Run Intake, press again to fall back on default commmand (stop intake)
-    // m_driverController.b().toggleOnTrue(m_intake.runIntake());
-    // m_driverController.a().toggleOnTrue(m_index.runIndex());
-    
-    // m_driverController.rightBumper().whileTrue(m_intake.raiseIntakeManual());
-    // m_driverController.leftBumper().whileTrue(m_intake.lowerIntakeManual());
-
-    // m_driverController.y().onTrue(m_intake.toggleIntake());
-    // m_driverController.x().whileTrue(m_intake.runIntake());
-
     // test override commands
     m_driverController.start()
     .onTrue(new InstantCommand(()-> Constants.overrideEnabled = true))
